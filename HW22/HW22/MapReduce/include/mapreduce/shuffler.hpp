@@ -16,7 +16,7 @@ public:
         //std::cout  << "Shuffler Run thread id " << id  << std::endl;
         for (int i = id; i < store.get_amount(); i += batch_size)
         {
-            std::cout  << " Thread id " << id << " i = " << i << std::endl;
+            //std::cout  << " Thread id " << id << " i = " << i << std::endl;
             auto res = store.get_ith(i);
             if (res) {
                 auto taken = std::move(*res);
