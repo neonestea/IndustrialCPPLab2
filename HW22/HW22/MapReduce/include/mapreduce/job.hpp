@@ -1,25 +1,13 @@
 #pragma once
 
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/list.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/algorithm/cxx11/any_of.hpp>
-
-#include "specification.hpp"
 #include "shuffler.hpp"
 
-#include <chrono>
-#include <utility>
 #include <algorithm>
 #include <list>
 #include <map>
-#include <queue>
 #include <vector>
 #include <thread>
 #include <atomic>
-#include "directory_source.hpp"
 #include "map.hpp"
 #include "storage.hpp"
 #include "shuffler.hpp"
@@ -75,84 +63,71 @@ void run_shuffler_phase(Synchronization& synchron, Storage& istore, std::vector<
 }
 
 class Job
+{
+public:
+
+    Job(Map& map_fn, Storage& is, Shuffler& cfn, Reduce& reduce_fn, Storage& output_store)
+        : map_fn(map_fn), shuffler(cfn), istore(is), reduce_fn(reduce_fn), output_store(output_store)
     {
-    public:
+    }
 
-        Job(DirectorySource& ds, Map& map_fn, Storage& is, Shuffler& cfn, Reduce& reduce_fn, Storage& output_store)
-            : input_ds(ds), map_fn(map_fn), shuffler(cfn), istore(is), reduce_fn(reduce_fn), output_store(output_store)
-        {
+    ~Job()
+    {
+    }
+
+    void start()
+    {
+        int map_workers = 4; //заменить!
+            
+        Synchronization synchronizatorMap(map_workers); //не нужен
+            
+        std::vector<std::string> files;                                                                       //заменить !
+        files.push_back("../../projects/src/dummyfiles/file1.txt");
+        files.push_back("../../projects/src/dummyfiles/file2.txt");
+        files.push_back("../../projects/src/dummyfiles/file3.txt");
+        files.push_back("../../projects/src/dummyfiles/file4.txt");
+
+        std::vector<std::thread> map_threads = {};
+        for (size_t i = 0; i < map_workers; i++) {
+            std::thread map_thread(run_map_phase, std::ref(files[i]), std::ref(synchronizatorMap), std::ref(map_fn), std::ref(istore));
+            map_threads.emplace_back(std::move(map_thread));
         }
 
-        ~Job()
-        {
+            
+        for (size_t i = 0; i < map_workers; i++) {
+            map_threads[i].join();
         }
-
-        void start()
-        {
-            
-            Synchronization synchronizatorMap(map_workers); //не нужен
-            
-            files.push_back("../../projects/src/dummyfiles/file1.txt");
-            files.push_back("../../projects/src/dummyfiles/file2.txt");
-            files.push_back("../../projects/src/dummyfiles/file3.txt");
-            files.push_back("../../projects/src/dummyfiles/file4.txt");
-
-            std::vector<std::thread> map_threads = {};
-            for (size_t i = 0; i < map_workers; i++) {
-                std::thread map_thread(run_map_phase, std::ref(files[i]), std::ref(synchronizatorMap), std::ref(map_fn), std::ref(istore));
-                map_threads.emplace_back(std::move(map_thread));
-            }
-
-            
-            for (size_t i = 0; i < map_workers; i++) {
-                map_threads[i].join();
-            }
             //Mapping completed
-            istore.print();
-            size_t reducers_count = istore.get_amount();
-            unsigned int n = std::thread::hardware_concurrency();
-            if (reducers_count > n) {
-                reducers_count = n;
-            }
-            Synchronization synchronizatorShuffler(reducers_count); //не нужен
-            std::vector<Storage> shuffled;
-            std::vector<std::thread> shuffle_threads = {};
-            std::cout << "\n";
-            std::cout << "\n";
-            std::cout << "\n";
-            std::cout << "\n";
-            std::cout << "Shuffling " << reducers_count << " threads" << std::endl;
-            for (size_t i = 0; i < reducers_count; i++) {
-                int thread_id = i;
-                std::thread shuffle_thread(run_shuffler_phase, std::ref(synchronizatorShuffler), std::ref(istore), std::ref(shuffled), std::ref(reducers_count), std::ref(shuffler), thread_id);
-                shuffle_threads.emplace_back(std::move(shuffle_thread));
-            }
-            for (size_t i = 0; i < reducers_count; i++) {
-                shuffle_threads[i].join();
-            }
-            // std::cout << "\n";
-            // std::cout << "\n";
-            // std::cout << "\n";
-            // std::cout << "\n";
-            for (int i = 0; i < shuffled.size(); ++i) {
+        istore.print();
+        size_t reducers_count = istore.get_amount();
+        unsigned int n = std::thread::hardware_concurrency();
+        if (reducers_count > n) {
+            reducers_count = n;
+        }
+        Synchronization synchronizatorShuffler(reducers_count); //не нужен
+        std::vector<Storage> shuffled;
+        std::vector<std::thread> shuffle_threads = {};
+        for (size_t i = 0; i < reducers_count; i++) {
+            int thread_id = i;
+            std::thread shuffle_thread(run_shuffler_phase, std::ref(synchronizatorShuffler), std::ref(istore), std::ref(shuffled), std::ref(reducers_count), std::ref(shuffler), thread_id);
+            shuffle_threads.emplace_back(std::move(shuffle_thread));
+        }
+        for (size_t i = 0; i < reducers_count; i++) {
+            shuffle_threads[i].join();
+        }
+        for (int i = 0; i < shuffled.size(); ++i) {
                 std::cout << "New batch " << std::endl;
                 shuffled[i].print();
-            }
-
-            //Shuffling completed!
-
-            
         }
+         
+    }
 
-
-    private:
-        // note that each process has its own copy
-        DirectorySource& input_ds;
+private:
         Map& map_fn;
-        Storage& istore; // accumulates intermediates from successive tasks
+        Storage& istore; 
         Shuffler& shuffler;
         Reduce& reduce_fn;
         Storage& output_store;
 
-        
-    };
+      
+};
