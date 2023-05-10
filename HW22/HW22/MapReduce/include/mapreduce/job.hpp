@@ -1,6 +1,5 @@
 #pragma once
 
-#include "specification.hpp"
 #include "shuffler.hpp"
 
 #include <chrono>
@@ -10,7 +9,6 @@
 #include <vector>
 #include <thread>
 #include <atomic>
-#include "directory_source.hpp"
 #include "map.hpp"
 #include "storage.hpp"
 #include "reduce.hpp"
@@ -143,126 +141,17 @@ public:
         }
 //        std::cout << "\n\n\n\n";
 
-        //run_shuffler_phase(spec, comm);
-        //comm.barrier();
-        //synchronizatorMap.synch();
-        //run_shuffle_phase(spec, comm);
-        //comm.barrier();
-        //synchronizatorMap.synch();
-        //run_reduce_phase(spec, comm);
-        //comm.barrier();
-        //synchronizatorReduce.synch();
-        //run_gather_phase(spec, comm);
-        //comm.barrier();
-        //synchronizatorReduce.synch();
+        
     }
 
 private:
-    using map_task_inputs_t = std::map<std::string, std::vector<std::string>>;
-
     
-
-    /*void run_reduce_phase(const Specifications& spec, boost::mpi::communicator& comm)
-    {
-        if (comm.rank() != 0)
-        {
-            for (const auto& key : istore.get_keys())
-            {
-                const auto& values = istore.get_key_values(key);
-                reduce_fn.reduce(key, std::begin(values), std::end(values), output_store);
-            }
-        }
-    }
-
-    void run_gather_phase(const Specifications& spec, boost::mpi::communicator& comm)
-    {
-        if (!spec.gather_on_master)
-            return;
-
-        std::vector<int> workers(spec.num_reduce_workers);
-        std::iota(std::begin(workers), std::end(workers), 1);
-        assert(comm.size() >= spec.num_reduce_workers + 1);
-
-        if (comm.rank() == 0)
-        {
-            int awaiting_completion = workers.size();
-            while (awaiting_completion)
-            {
-                auto msg = comm.probe();
-                if (msg.tag() == GatherPayloadDelivery)
-                {
-                    std::pair<std::string, std::vector<int>> data;
-                    comm.recv(msg.source(), GatherPayloadDelivery, data);
-                    auto& [key, values] = data;
-                    output_store.pushback(std::move(key), std::move(values));
-                }
-                else if (msg.tag() == GatherPayloadDeliveryComplete)
-                {
-                    comm.recv(msg.source(), GatherPayloadDeliveryComplete);
-                    awaiting_completion--;
-                }
-                else if (msg.tag() == MapPhasePing)
-                {
-                    std::size_t task_id;
-                    comm.recv(msg.source(), MapPhasePing, task_id);
-                }
-                else
-                {
-                    assert(0);
-                }
-            }
-        }
-        else if (boost::algorithm::any_of_equal(workers, comm.rank()))
-        {
-            for (const auto& key : output_store.get_keys())
-            {
-                const auto& values = output_store.get_key_values(key);
-                comm.send(0, GatherPayloadDelivery, std::make_pair(key, values));
-            }
-
-            comm.send(0, GatherPayloadDeliveryComplete);
-        }
-    }*/
-
-private:
-    // note that each process has its own copy
-    DirectorySource& input_ds;
+    
     Map& map_fn;
     Storage& istore; // accumulates intermediates from successive tasks
     Shuffler& shuffler;
     Reduce& reduce_fn;
     Storage& output_store;
 
-    enum {
-        MapPhaseBegin,
-        MapTaskAssignment,
-        MapTaskCompletion,
-        MapPhasePing,
-        MapPhaseEnd,
-
-        ShufflePhaseBegin,
-        ShuffleIntermediateCounts,
-        ShuffleDistributionMap,
-        ShufflePayloadDelivery,
-        ShufflePayloadDeliveryComplete,
-        ShufflePhaseEnd,
-
-        GatherPayloadDelivery,
-        GatherPayloadDeliveryComplete
-    };
-
-    struct TaskItem {
-        map_task_inputs_t inputs;
-
-        struct {
-            int worker;
-            bool completed;
-            std::chrono::time_point<std::chrono::steady_clock> start_time, end_time;
-            std::chrono::time_point<std::chrono::steady_clock> last_ping_time;
-        } status;
-    };
     
-    // indices are task id
-    std::vector<TaskItem> map_tasks;
-    std::vector<int> failed_workers;
 };
