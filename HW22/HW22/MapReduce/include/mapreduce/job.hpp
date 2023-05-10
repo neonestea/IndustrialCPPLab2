@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/mpi.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/list.hpp>
@@ -75,7 +74,7 @@ void run_shuffler_phase(Synchronization& synchron, Storage& istore, std::vector<
     synchron.synch();
 }
 
-    class Job
+class Job
     {
     public:
 
@@ -90,11 +89,9 @@ void run_shuffler_phase(Synchronization& synchron, Storage& istore, std::vector<
 
         void start()
         {
-            int map_workers = 4; //заменить!
             
             Synchronization synchronizatorMap(map_workers); //не нужен
             
-            std::vector<std::string> files;                                                                       //заменить !
             files.push_back("../../projects/src/dummyfiles/file1.txt");
             files.push_back("../../projects/src/dummyfiles/file2.txt");
             files.push_back("../../projects/src/dummyfiles/file3.txt");
@@ -133,10 +130,10 @@ void run_shuffler_phase(Synchronization& synchron, Storage& istore, std::vector<
             for (size_t i = 0; i < reducers_count; i++) {
                 shuffle_threads[i].join();
             }
-            std::cout << "\n";
-            std::cout << "\n";
-            std::cout << "\n";
-            std::cout << "\n";
+            // std::cout << "\n";
+            // std::cout << "\n";
+            // std::cout << "\n";
+            // std::cout << "\n";
             for (int i = 0; i < shuffled.size(); ++i) {
                 std::cout << "New batch " << std::endl;
                 shuffled[i].print();
