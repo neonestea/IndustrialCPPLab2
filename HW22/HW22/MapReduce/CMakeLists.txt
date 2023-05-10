@@ -11,8 +11,5 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 
-# options
-option(BUILD_SHARED_LIBS  "Build shared instead of static libraries." ON)
-
 add_subdirectory(include)
 add_subdirectory(projects)
