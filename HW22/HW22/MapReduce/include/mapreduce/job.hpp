@@ -1,5 +1,6 @@
 #pragma once
 
+#include "specification.hpp"
 #include "shuffler.hpp"
 
 #include <chrono>
@@ -9,6 +10,7 @@
 #include <vector>
 #include <thread>
 #include <atomic>
+#include "directory_source.hpp"
 #include "map.hpp"
 #include "storage.hpp"
 #include "reduce.hpp"
@@ -69,8 +71,8 @@ class Job
 {
 public:
 
-    Job(Map& map_fn, Storage& is, Shuffler& cfn, Reduce& reduce_fn, Storage& output_store)
-        : map_fn(map_fn), shuffler(cfn), istore(is), reduce_fn(reduce_fn), output_store(output_store)
+    Job(DirectorySource& ds, Map& map_fn, Storage& is, Shuffler& cfn, Reduce& reduce_fn, Storage& output_store)
+        : input_ds(ds), map_fn(map_fn), shuffler(cfn), istore(is), reduce_fn(reduce_fn), output_store(output_store)
     {
     }
 
@@ -99,8 +101,6 @@ public:
         for (size_t i = 0; i < map_workers; ++i) {
             map_threads[i].join();
         }
-        //Mapping completed
-//        istore.print();
         size_t reducers_count = istore.get_amount();
         unsigned int n = std::thread::hardware_concurrency();
         if (reducers_count > n) {
@@ -109,8 +109,6 @@ public:
         Synchronization synchronizatorShuffler(reducers_count); // Не нужен
         std::vector<Storage> shuffled;
         std::vector<std::thread> shuffle_threads = {};
-//        std::cout << "\n\n\n\n";
-//        std::cout << "Shuffling " << reducers_count << " threads" << std::endl;
         for (size_t i = 0; i < reducers_count; ++i) {
             int thread_id = i;
             std::thread shuffle_thread(run_shuffler_phase, std::ref(synchronizatorShuffler), std::ref(istore), std::ref(shuffled), std::ref(reducers_count), std::ref(shuffler), thread_id);
@@ -119,17 +117,9 @@ public:
         for (size_t i = 0; i < reducers_count; ++i) {
             shuffle_threads[i].join();
         }
-/*
-        std::cout << "\n\n\n\n";
-        for (int i = 0; i < shuffled.size(); ++i) {
-            std::cout << "New batch #" << i << std::endl;
-            shuffled[i].print();
-        }
-*/
-        //Shuffling completed!
+
         std::vector<std::thread> reducer_threads = {};
 
-//        std::cout << "Reducing " << reducers_count << " threads" << std::endl;
         for (size_t i = 0; i < reducers_count; ++i) {
             int thread_id = i;
             std::thread reducer_thread(run_reducer_phase, std::ref(shuffled[i]), thread_id);
@@ -139,19 +129,50 @@ public:
         for (size_t i = 0; i < reducers_count; ++i) {
             reducer_threads[i].join();
         }
-//        std::cout << "\n\n\n\n";
-
-        
     }
 
 private:
-    
-    
+    using map_task_inputs_t = std::map<std::string, std::vector<std::string>>;
+
+private:
+    // note that each process has its own copy
+    DirectorySource& input_ds;
     Map& map_fn;
     Storage& istore; // accumulates intermediates from successive tasks
     Shuffler& shuffler;
     Reduce& reduce_fn;
     Storage& output_store;
 
+    enum {
+        MapPhaseBegin,
+        MapTaskAssignment,
+        MapTaskCompletion,
+        MapPhasePing,
+        MapPhaseEnd,
+
+        ShufflePhaseBegin,
+        ShuffleIntermediateCounts,
+        ShuffleDistributionMap,
+        ShufflePayloadDelivery,
+        ShufflePayloadDeliveryComplete,
+        ShufflePhaseEnd,
+
+        GatherPayloadDelivery,
+        GatherPayloadDeliveryComplete
+    };
+
+    struct TaskItem {
+        map_task_inputs_t inputs;
+
+        struct {
+            int worker;
+            bool completed;
+            std::chrono::time_point<std::chrono::steady_clock> start_time, end_time;
+            std::chrono::time_point<std::chrono::steady_clock> last_ping_time;
+        } status;
+    };
     
+    // indices are task id
+    std::vector<TaskItem> map_tasks;
+    std::vector<int> failed_workers;
 };
