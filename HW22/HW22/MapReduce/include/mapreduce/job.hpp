@@ -47,9 +47,9 @@ private:
     std::condition_variable cv;
 };
 
-void run_map_phase(std::string& str, Synchronization& synchron, Map& map_fn, Storage& istore)
+void run_map_phase(/*std::string& str, */Synchronization& synchron, Map& map_fn, Storage& istore, int id, std::vector<std::string> files, int batch_size, int total)
 {
-    map_fn.map(str, istore);
+    map_fn.map(/*str,*/ istore, id, files, batch_size, total);
     synchron.synch();
 }
 
@@ -81,6 +81,7 @@ public:
     void start()
     {
         int map_workers = 4; //заменить!
+        unsigned int n = std::thread::hardware_concurrency();
         
         Synchronization synchronizatorMap(map_workers); //не нужен
         
@@ -89,10 +90,15 @@ public:
         files.push_back("../../projects/src/dummyfiles/file2.txt");
         files.push_back("../../projects/src/dummyfiles/file3.txt");
         files.push_back("../../projects/src/dummyfiles/file4.txt");
+        int batch_size = files.size();
+        if (batch_size > n) {
+            batch_size = n;
+        }
 
         std::vector<std::thread> map_threads = {};
         for (size_t i = 0; i < map_workers; ++i) {
-            std::thread map_thread(run_map_phase, std::ref(files[i]), std::ref(synchronizatorMap), std::ref(map_fn), std::ref(istore));
+            int thread_id = i;
+            std::thread map_thread(run_map_phase, /*std::ref(files[i]),*/ std::ref(synchronizatorMap), std::ref(map_fn), std::ref(istore),  thread_id, std::ref(files), batch_size, files.size());
             map_threads.emplace_back(std::move(map_thread));
         }
 
@@ -102,7 +108,7 @@ public:
         //Mapping completed
 //        istore.print();
         size_t reducers_count = istore.get_amount();
-        unsigned int n = std::thread::hardware_concurrency();
+       // unsigned int n = std::thread::hardware_concurrency();
         if (reducers_count > n) {
             reducers_count = n;
         }
