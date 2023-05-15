@@ -53,8 +53,12 @@
  ./wordcount
  ```
  
- Для запуска тестов:
+ Для запуска юнит-тестов:
   ```bash
  ./unit_test
- ./checker.sh
+ ```
+ Для запуска интеграционного теста
+  ```bash
+  cd ../../testsuite/wordcount
+  ./checker.sh
  ```
