@@ -20,14 +20,26 @@
     │       ├── reduce.hpp                  # класс Reduce
     │       ├── shuffler.hpp                # класс Shuffle
     │       └── storage.hpp                 # класс Storage
-    └── projects
-        ├── CMakeLists.txt
-        └── src
-            ├── CMakeLists.txt
-            ├── input                       # папка с исходным файлом и файлами, полученными после сплита
-            ├── main.cpp                    # Main, отсюда происходит запуск Job
-            └── output                      # папка с итоговыми файлами
-   ```           
+    ├── projects
+    │   ├── CMakeLists.txt
+    │   └── src
+    │       ├── CMakeLists.txt
+    │       ├── input                       # папка с исходным файлом и файлами, полученными после сплита
+    │       ├── main.cpp                    # Main, отсюда происходит запуск Job
+    │       └── output                      # папка с итоговыми файлами
+    └── testsuite
+            ├── wordcount
+            │      └── checker.sh      
+            └── libsrc
+                └── wordcount
+                    ├── CMakeLists.txt
+                    └── src
+                        └── test.cpp 
+                        
+    
+  
+  
+  ```           
  Проект написан для запуска в многопоточном режиме с помощью std::thread.
  ## Запуск
  
