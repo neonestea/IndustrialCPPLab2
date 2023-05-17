@@ -16,7 +16,7 @@
 #include <mutex>
 #include <condition_variable>
 
-class Synchronization {
+/*class Synchronization {
 public:
     Synchronization(const std::size_t num_threads) : 
       _num_threads(num_threads) {
@@ -45,18 +45,18 @@ private:
     const size_t _num_threads = 0;
     std::mutex m;
     std::condition_variable cv;
-};
+};*/
 
-void run_map_phase(/*std::string& str, */Synchronization& synchron, Map& map_fn, Storage& istore, int id, std::vector<std::string> files, int batch_size, int total)
+void run_map_phase(/*std::string& str, Synchronization& synchron, */Map& map_fn, Storage& istore, int id, std::vector<std::string> files, int batch_size, int total)
 {
     map_fn.map(/*str,*/ istore, id, files, batch_size, total);
-    synchron.synch();
+    //synchron.synch();
 }
 
-void run_shuffler_phase(Synchronization& synchron, Storage& istore, std::vector<Storage>& shuffled, int reducers_count, Shuffler& shuffler, int id)
+void run_shuffler_phase(/*Synchronization& synchron,*/ Storage& istore, std::vector<Storage>& shuffled, int reducers_count, Shuffler& shuffler, int id)
 {
     shuffler.shuffle(istore, shuffled, reducers_count, id);
-    synchron.synch();
+    //synchron.synch();
 }
 
 void run_reducer_phase(Storage& shuffled, int id)
@@ -83,7 +83,7 @@ public:
         int map_workers = 4; //заменить!
         unsigned int n = std::thread::hardware_concurrency();
         
-        Synchronization synchronizatorMap(map_workers); //не нужен
+        //Synchronization synchronizatorMap(map_workers); //не нужен
         
         std::vector<std::string> files;                                                                       //заменить !
         files.push_back("../../projects/src/dummyfiles/file1.txt");
@@ -98,7 +98,7 @@ public:
         std::vector<std::thread> map_threads = {};
         for (size_t i = 0; i < map_workers; ++i) {
             int thread_id = i;
-            std::thread map_thread(run_map_phase, /*std::ref(files[i]),*/ std::ref(synchronizatorMap), std::ref(map_fn), std::ref(istore),  thread_id, std::ref(files), batch_size, files.size());
+            std::thread map_thread(run_map_phase, /*std::ref(files[i]), std::ref(synchronizatorMap),*/ std::ref(map_fn), std::ref(istore),  thread_id, std::ref(files), batch_size, files.size());
             map_threads.emplace_back(std::move(map_thread));
         }
 
@@ -112,14 +112,14 @@ public:
         if (reducers_count > n) {
             reducers_count = n;
         }
-        Synchronization synchronizatorShuffler(reducers_count); // Не нужен
+        //Synchronization synchronizatorShuffler(reducers_count); // Не нужен
         std::vector<Storage> shuffled;
         std::vector<std::thread> shuffle_threads = {};
 //        std::cout << "\n\n\n\n";
 //        std::cout << "Shuffling " << reducers_count << " threads" << std::endl;
         for (size_t i = 0; i < reducers_count; ++i) {
             int thread_id = i;
-            std::thread shuffle_thread(run_shuffler_phase, std::ref(synchronizatorShuffler), std::ref(istore), std::ref(shuffled), std::ref(reducers_count), std::ref(shuffler), thread_id);
+            std::thread shuffle_thread(run_shuffler_phase, /*std::ref(synchronizatorShuffler), */std::ref(istore), std::ref(shuffled), std::ref(reducers_count), std::ref(shuffler), thread_id);
             shuffle_threads.emplace_back(std::move(shuffle_thread));
         }
         for (size_t i = 0; i < reducers_count; ++i) {
