@@ -4,10 +4,11 @@
 #include <sstream>
 #include <boost/range/istream_range.hpp>
 #include "storage.hpp"
+#include "multithread_vector.hpp"
 
 class Map {
 public:
-    void map(/*std::string filename,*/ Storage& store, int id, std::vector<std::string>& filenames, int batch_size, int total) {
+    void map(/*std::string filename,*/ Storage& store, int id, LockVector<std::string>& filenames, int batch_size, int total) {
         for (int i = id; i < total; i += batch_size ) {
             std::ifstream ifs(filenames[i]);
             //std::cout << "Key " << filename << std::endl;
