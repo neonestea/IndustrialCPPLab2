@@ -15,6 +15,7 @@
 #include <string>
 #include <mutex>
 #include <condition_variable>
+#include "multithread_vector.hpp"
 
 /*class Synchronization {
 public:
@@ -47,13 +48,13 @@ private:
     std::condition_variable cv;
 };*/
 
-void run_map_phase(/*std::string& str, Synchronization& synchron, */Map& map_fn, Storage& istore, int id, std::vector<std::string> files, int batch_size, int total)
+void run_map_phase(/*std::string& str, Synchronization& synchron, */Map& map_fn, Storage& istore, int id, LockVector<std::string>& files, int batch_size, int total)
 {
     map_fn.map(/*str,*/ istore, id, files, batch_size, total);
     //synchron.synch();
 }
 
-void run_shuffler_phase(/*Synchronization& synchron,*/ Storage& istore, std::vector<Storage>& shuffled, int reducers_count, Shuffler& shuffler, int id)
+void run_shuffler_phase(/*Synchronization& synchron,*/ Storage& istore, LockVector<Storage>& shuffled, int reducers_count, Shuffler& shuffler, int id)
 {
     shuffler.shuffle(istore, shuffled, reducers_count, id);
     //synchron.synch();
@@ -85,11 +86,16 @@ public:
         
         //Synchronization synchronizatorMap(map_workers); //не нужен
         
-        std::vector<std::string> files;                                                                       //заменить !
-        files.push_back("../../projects/src/dummyfiles/file1.txt");
-        files.push_back("../../projects/src/dummyfiles/file2.txt");
-        files.push_back("../../projects/src/dummyfiles/file3.txt");
-        files.push_back("../../projects/src/dummyfiles/file4.txt");
+        LockVector<std::string> files;   
+        std::string s1 = "../../projects/src/dummyfiles/file1.txt";                                                        //заменить !
+        std::string s2 = "../../projects/src/dummyfiles/file2.txt";    
+        std::string s3 = "../../projects/src/dummyfiles/file3.txt";    
+        std::string s4 = "../../projects/src/dummyfiles/file3.txt";    
+
+        files.push_back(s1);
+        files.push_back(s2);
+        files.push_back(s3);
+        files.push_back(s4);
         int batch_size = files.size();
         if (batch_size > n) {
             batch_size = n;
@@ -113,7 +119,7 @@ public:
             reducers_count = n;
         }
         //Synchronization synchronizatorShuffler(reducers_count); // Не нужен
-        std::vector<Storage> shuffled;
+        LockVector<Storage> shuffled;
         std::vector<std::thread> shuffle_threads = {};
 //        std::cout << "\n\n\n\n";
 //        std::cout << "Shuffling " << reducers_count << " threads" << std::endl;
