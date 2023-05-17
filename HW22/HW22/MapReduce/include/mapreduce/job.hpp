@@ -81,7 +81,7 @@ public:
 
     void start()
     {
-        int map_workers = 4; //заменить!
+       
         unsigned int n = std::thread::hardware_concurrency();
         
         //Synchronization synchronizatorMap(map_workers); //не нужен
@@ -100,6 +100,7 @@ public:
         if (batch_size > n) {
             batch_size = n;
         }
+        int map_workers = batch_size;
 
         std::vector<std::thread> map_threads = {};
         for (size_t i = 0; i < map_workers; ++i) {
