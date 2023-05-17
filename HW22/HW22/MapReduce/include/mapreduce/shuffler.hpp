@@ -4,13 +4,14 @@
 #include <fstream>
 #include "storage.hpp"
 #include <thread>
+#include "multithread_vector.hpp"
 
 
 class Shuffler
 {
 private:
 public:
-    void shuffle(Storage& store, std::vector<Storage>& output, int batch_size, int id) {
+    void shuffle(Storage& store, LockVector<Storage>& output, int batch_size, int id) {
         Storage shuffled;
         //size_t id = std::hash<std::thread::id>{}(std::this_thread::get_id());
         //std::cout  << "Shuffler Run thread id " << id  << std::endl;
