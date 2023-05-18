@@ -53,8 +53,19 @@
  ./wordcount
  ```
  
- Для запуска юнит-тестов:
+ Для запуска юнит-тестов (из папки проекта):
   ```bash
+  mkdir third-party
+  cd third-party
+  git clone https://github.com/catchorg/Catch2
+  cd Catch2
+  cmake -Bbuild -H. -DBUILD_TESTING=OFF
+  sudo cmake --build build/ --target install
+  cd ..
+  cd ..
+  cd build
+  cmake ..
+  cd bin
  ./test
  ```
  Для запуска интеграционного теста
