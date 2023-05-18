@@ -29,13 +29,13 @@
     │       └── output                      # папка с итоговыми файлами
     └── testsuite
             ├── wordcount
-            │      └── checker.sh      
+            │      └── checker.sh           # интеграционный тест
             └── libsrc
                 └── wordcount
                     ├── CMakeLists.txt
                     └── src
-                        └── test.cpp 
-                        
+                        └── test.cpp        # unit-test
+                         
     
   
   
