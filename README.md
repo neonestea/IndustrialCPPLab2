@@ -70,6 +70,6 @@
  ```
  Для запуска интеграционного теста
   ```bash
-  cd ../../testsuite/wordcount
+  cd /testsuite/wordcount
   ./checker.sh
  ```
