@@ -13,3 +13,4 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 
 add_subdirectory(include)
 add_subdirectory(projects)
+add_subdirectory(testsuite)
