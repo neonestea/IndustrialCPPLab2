@@ -19,6 +19,7 @@
     │       ├── map.hpp                     # класс Map
     │       ├── reduce.hpp                  # класс Reduce
     │       ├── shuffler.hpp                # класс Shuffle
+            ├── splitter.hpp                # Split файлов           
     │       └── storage.hpp                 # класс Storage
     ├── projects
     │   ├── CMakeLists.txt
