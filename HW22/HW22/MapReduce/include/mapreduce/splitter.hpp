@@ -4,13 +4,14 @@
 #include <vector>
 #include <cmath>
 #include <regex> 
+#include <filesystem> 
 #include "job.hpp"
 #include "multithread_vector.hpp"
 
 using namespace std;
 namespace fs = std::filesystem;
-const std::string INPUT_DIR = "../../projects/src/input/"; // Путь к входным файлам
-const std::string OUTPUT_DIR = "../../projects/src/input/"; // Путь для сохранения новых файлов
+const std::string INPUT_DIR = "../../data/input/"; // Путь к входным файлам
+const std::string OUTPUT_DIR = "../../data/input/"; // Путь для сохранения новых файлов
 const std::string OUT_FILE = "out_"; 
 
 void splitFiles(const vector<string>& inputFiles, const string& outputDir, const double splitPercent, LockVector<string>& outputFiles) {
