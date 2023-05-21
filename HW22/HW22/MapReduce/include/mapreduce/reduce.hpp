@@ -6,7 +6,6 @@
 #include <iostream>
 #include <filesystem>
 
-const std::string OUT_DIR_PARENT = "../../data/"; 
 const std::string OUT_DIR = "../../data/output/";
 const std::string OUT_FILE = "out_"; // out_0.txt out_1.txt ...
 
