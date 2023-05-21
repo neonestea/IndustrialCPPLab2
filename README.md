@@ -24,19 +24,18 @@
     │   ├── CMakeLists.txt
     │   └── src
     │       ├── CMakeLists.txt
-    │       ├── input                       # папка с исходным файлом и файлами, полученными после сплита
-    │       ├── main.cpp                    # Main, отсюда происходит запуск Job
-    │       └── output                      # папка с итоговыми файлами
-    └── testsuite
-            ├── wordcount
-            │      └── checker.sh           # интеграционный тест
-            └── libsrc
-                └── wordcount
-                    ├── CMakeLists.txt
-                    └── src
-                        └── test.cpp        # unit-test
-                         
-    
+    │       └── main.cpp                    # Main, отсюда происходит запуск Job
+    ├── testsuite
+    │       ├── wordcount
+    │       │      └── integrate.py           # интеграционный тест
+    │       └── libsrc
+    │           └── wordcount
+    │               ├── CMakeLists.txt
+    │               └── src
+    │                   └── test.cpp        # unit-test
+    └── data  
+            ├── input                         # папка с исходным файлом и файлами, полученными после сплита
+            └── output                        # папка с итоговыми файлами
   
   
   ```           
@@ -70,6 +69,5 @@
  ```
  Для запуска интеграционного теста
   ```bash
-  cd /testsuite/wordcount
-  ./checker.sh
+  todo
  ```
