@@ -103,13 +103,13 @@ public:
         int map_workers = batch_size;
 
         std::vector<std::thread> map_threads = {};
-        for (size_t i = 0; i < map_workers; ++i) {
+        for (int i = 0; i < map_workers; ++i) {
             int thread_id = i;
             std::thread map_thread(run_map_phase, /*std::ref(files[i]), std::ref(synchronizatorMap),*/ std::ref(map_fn), std::ref(istore),  thread_id, std::ref(files), batch_size, files.size());
             map_threads.emplace_back(std::move(map_thread));
         }
 
-        for (size_t i = 0; i < map_workers; ++i) {
+        for (int i = 0; i < map_workers; ++i) {
             map_threads[i].join();
         }
         //Mapping completed
@@ -159,12 +159,9 @@ public:
 
 private:
     
-    
     Map& map_fn;
     Storage& istore; // accumulates intermediates from successive tasks
     Shuffler& shuffler;
     Reduce& reduce_fn;
     Storage& output_store;
-
-    
 };

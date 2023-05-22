@@ -20,10 +20,10 @@
 TEST_CASE("MapReduce", "[rebuild_output]")
 {
     namespace fs = std::filesystem;
-    fs::path tmp = "../../projects/src/output/";
+    fs::path tmp = "../../data/output/";
     std::uintmax_t n = fs::remove_all(tmp);
 
-    std::string source_dir = "../../projects/src/dummyfiles";
+    std::string source_dir = "../../data/input";
     Map mapfn;
     Shuffler shuffler;
     Storage intermediate_store;
@@ -36,7 +36,7 @@ TEST_CASE("MapReduce", "[rebuild_output]")
 
 TEST_CASE("MapReduce", "[check_out_0.txt]")
 {
-    std::ifstream f("../../projects/src/output/out_0.txt");
+    std::ifstream f("../../data/output/out_0.txt");
     std::string line;
  
     while (std::getline(f, line))
@@ -59,7 +59,7 @@ TEST_CASE("MapReduce", "[check_out_0.txt]")
 
 TEST_CASE("MapReduce", "[check_out_1.txt]")
 {
-    std::ifstream f("../../projects/src/output/out_1.txt");
+    std::ifstream f("../../data/output/out_1.txt");
     std::string line;
  
     while (std::getline(f, line))
