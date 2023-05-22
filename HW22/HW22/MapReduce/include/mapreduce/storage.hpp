@@ -7,6 +7,8 @@
 
 #include <map>
 #include <vector>
+#include <mutex>
+#include <condition_variable>
 
 class Storage 
 {
@@ -14,18 +16,28 @@ public:
     using iterator_t = typename std::map<std::string, std::vector<int>>::iterator;
     using const_iterator_t = typename std::map<std::string, std::vector<int>>::const_iterator;
 
+    Storage() : cond() {
+        mut = new std::mutex();
+        cond = new std::condition_variable();
+    }
+    ~Storage() {}
+
     void pushback(const std::string& key, const int& value)
     {
+        std::lock_guard<std::mutex> lock(*mut);
         if (!store.count(key))
             store[key] = {};
         store[key].push_back(value);
+        cond->notify_one();
     }
 
     void pushback(const std::string& key, const std::vector<int>& values)
     {
+        std::lock_guard<std::mutex> lock(*mut);
         if (!store.count(key))
             store[key] = {};
         store[key].insert(store[key].end(), std::begin(values), std::end(values));
+        cond->notify_one();
     }
 
     auto get_key_counts() const
@@ -79,8 +91,11 @@ public:
             }
             std::cout << "\n";
         }
+        
     }
 
 private:
     std::map<std::string, std::vector<int>> store;
+    std::mutex* mut;
+    std::condition_variable* cond;
 };   

@@ -1,8 +1,8 @@
-set(target wordcount)
+set(target test)
 find_package (Threads REQUIRED)
 
 set(sources
-    main.cpp
+    wordcount/src/test.cpp ~/dev/Catch2/extras/catch_amalgamated.cpp
 )
 
 
