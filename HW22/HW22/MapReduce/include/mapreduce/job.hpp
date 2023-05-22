@@ -16,6 +16,8 @@
 #include <mutex>
 #include <condition_variable>
 #include "multithread_vector.hpp"
+#include "splitter.hpp"
+
 
 /*class Synchronization {
 public:
@@ -84,18 +86,15 @@ public:
        
         unsigned int n = std::thread::hardware_concurrency();
         
-        //Synchronization synchronizatorMap(map_workers); //не нужен
-        
-        LockVector<std::string> files;   
-        std::string s1 = "../../projects/src/dummyfiles/file1.txt";                                                        //заменить !
-        std::string s2 = "../../projects/src/dummyfiles/file2.txt";    
-        std::string s3 = "../../projects/src/dummyfiles/file3.txt";    
-        std::string s4 = "../../projects/src/dummyfiles/file3.txt";    
 
-        files.push_back(s1);
-        files.push_back(s2);
-        files.push_back(s3);
-        files.push_back(s4);
+        //Synchronization synchronizatorMap(map_workers); //не нуже
+        vector<string> inputFiles;
+        string outputDir = "../../data/input/";
+        double splitPercent = 0.1;
+        LockVector<string> outputFiles;
+        splitFiles(inputFiles, outputDir, splitPercent, outputFiles);
+        
+
         int batch_size = files.size();
         if (batch_size > n) {
             batch_size = n;
@@ -103,7 +102,10 @@ public:
         int map_workers = batch_size;
 
         std::vector<std::thread> map_threads = {};
+
+
         for (int i = 0; i < map_workers; ++i) {
+
             int thread_id = i;
             std::thread map_thread(run_map_phase, /*std::ref(files[i]), std::ref(synchronizatorMap),*/ std::ref(map_fn), std::ref(istore),  thread_id, std::ref(files), batch_size, files.size());
             map_threads.emplace_back(std::move(map_thread));
