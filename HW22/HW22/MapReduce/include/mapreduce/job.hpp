@@ -19,8 +19,7 @@
 #include "splitter.hpp"
 
 
-
-void run_map_phase(Map& map_fn, Storage& istore, int id, LockVector<std::string>& files, int batch_size, int total)
+void run_map_phase(/*std::string& str, Synchronization& synchron, */Map& map_fn, Storage& istore, int id, LockVector<std::string>& files, int batch_size, int total)
 {
     map_fn.map(/*str,*/ istore, id, files, batch_size, total);
     //synchron.synch();
@@ -57,6 +56,7 @@ public:
         unsigned int n = std::thread::hardware_concurrency();
         
 
+
         std::vector<std::string> inputFiles;
         for (int i = 0; i < 5; ++i)
             inputFiles.push_back(OUTPUT_DIR + "/" +"file" + to_string(i) + ".txt");
@@ -75,6 +75,7 @@ public:
         }
 
         int batch_size = outputFiles.size();
+
         if (batch_size > n) {
             batch_size = n;
         }
@@ -86,7 +87,9 @@ public:
         for (int i = 0; i < map_workers; ++i) {
 
             int thread_id = i;
+
             std::thread map_thread(run_map_phase, /*std::ref(files[i]), std::ref(synchronizatorMap),*/ std::ref(map_fn), std::ref(istore),  thread_id, std::ref(outputFiles), batch_size, outputFiles.size());
+
             map_threads.emplace_back(std::move(map_thread));
         }
 

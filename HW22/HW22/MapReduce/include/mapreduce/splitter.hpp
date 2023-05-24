@@ -7,11 +7,10 @@
 #include <cmath>
 #include <regex>
 #include "job.hpp"
-
 #include "multithread_vector.hpp"
 
 using namespace std;
-//namespace fs = std::filesystem; 
+
 const std::string INPUT_DIR = "../../data/input"; // Путь к входным файлам
 const std::string OUTPUT_DIR = "../../data/input"; // Путь для сохранения новых файлов
 const std::string OUT_FILES = "out_"; // Префикс имени новых файлов

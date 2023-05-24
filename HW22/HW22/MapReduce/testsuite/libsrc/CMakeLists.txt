@@ -1,8 +1,8 @@
-set(target wordcount)
+set(target test)
 find_package (Threads REQUIRED)
 
 set(sources
-    main.cpp
+    wordcount/src/test.cpp ${CMAKE_SOURCE_DIR}/third-party/Catch2/extras/catch_amalgamated.cpp
 )
 
 
