@@ -18,38 +18,9 @@
 #include "multithread_vector.hpp"
 #include "splitter.hpp"
 
-/*class Synchronization {
-public:
-    Synchronization(const std::size_t num_threads) : 
-      _num_threads(num_threads) {
-    }
 
-    void synch() {
-        std::unique_lock lock(m);
-        ++thread_cnt;
-        if (thread_cnt >= _num_threads) {
-            cv.notify_all();
-        } else {
-            while (thread_cnt < _num_threads) {
-                cv.wait(lock);
-            }
-        }
-        ++thread_out;
-        if (thread_out == _num_threads) {
-            thread_cnt = 0;
-            thread_out = 0;
-        }
-    }
 
-private:
-    std::atomic_int thread_out{0};
-    std::atomic_int thread_cnt{0};
-    const size_t _num_threads = 0;
-    std::mutex m;
-    std::condition_variable cv;
-};*/
-
-void run_map_phase(/*std::string& str, Synchronization& synchron, */Map& map_fn, Storage& istore, int id, LockVector<std::string>& files, int batch_size, int total)
+void run_map_phase(Map& map_fn, Storage& istore, int id, LockVector<std::string>& files, int batch_size, int total)
 {
     map_fn.map(/*str,*/ istore, id, files, batch_size, total);
     //synchron.synch();
@@ -85,36 +56,41 @@ public:
        
         unsigned int n = std::thread::hardware_concurrency();
         
-        double splitPercent = 0.1;  
-        LockVector<string> outputFiles;  
 
-        splitFiles(splitPercent, outputFiles);
-        //Synchronization synchronizatorMap(map_workers); //не нужен
+        std::vector<std::string> inputFiles;
+        for (int i = 0; i < 5; ++i)
+            inputFiles.push_back(OUTPUT_DIR + "/" +"file" + to_string(i) + ".txt");
+        /*inputFiles.push_back("../../data/input/file1.txt");
+        inputFiles.push_back("../../data/input/file2.txt");
+        inputFiles.push_back("../../data/input/file3.txt");
+        inputFiles.push_back("../../data/input/file4.txt");
+        inputFiles.push_back("../../data/input/file5.txt");*/
+        std::string outputDir = "../../data/input/";
+        double splitPercent = 0.2;
+        LockVector<string> outputFiles;
+        splitFiles(inputFiles, outputDir, splitPercent, outputFiles);
         
-        /*LockVector<std::string> files;   
-        std::string s1 = "../../projects/src/dummyfiles/file1.txt";                                                        //заменить !
-        std::string s2 = "../../projects/src/dummyfiles/file2.txt";    
-        std::string s3 = "../../projects/src/dummyfiles/file3.txt";    
-        std::string s4 = "../../projects/src/dummyfiles/file3.txt";    
+        for (int i=0; i<outputFiles.size(); ++i){
+            std::cout<<outputFiles[i]<<std::endl;
+        }
 
-        files.push_back(s1);
-        files.push_back(s2);
-        files.push_back(s3);
-        files.push_back(s4);*/
-        int batch_size = files.size();
+        int batch_size = outputFiles.size();
         if (batch_size > n) {
             batch_size = n;
         }
         int map_workers = batch_size;
 
         std::vector<std::thread> map_threads = {};
-        for (size_t i = 0; i < map_workers; ++i) {
+
+
+        for (int i = 0; i < map_workers; ++i) {
+
             int thread_id = i;
-            std::thread map_thread(run_map_phase, /*std::ref(files[i]), std::ref(synchronizatorMap),*/ std::ref(map_fn), std::ref(istore),  thread_id, std::ref(files), batch_size, files.size());
+            std::thread map_thread(run_map_phase, /*std::ref(files[i]), std::ref(synchronizatorMap),*/ std::ref(map_fn), std::ref(istore),  thread_id, std::ref(outputFiles), batch_size, outputFiles.size());
             map_threads.emplace_back(std::move(map_thread));
         }
 
-        for (size_t i = 0; i < map_workers; ++i) {
+        for (int i = 0; i < map_workers; ++i) {
             map_threads[i].join();
         }
         //Mapping completed
@@ -164,12 +140,9 @@ public:
 
 private:
     
-    
     Map& map_fn;
     Storage& istore; // accumulates intermediates from successive tasks
     Shuffler& shuffler;
     Reduce& reduce_fn;
     Storage& output_store;
-
-    
 };
