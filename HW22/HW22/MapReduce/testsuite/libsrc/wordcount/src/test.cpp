@@ -17,6 +17,7 @@
 #include <filesystem>
 
 
+
 TEST_CASE("MapReduce", "[rebuild_output]")
 {
     namespace fs = std::filesystem;
@@ -31,6 +32,29 @@ TEST_CASE("MapReduce", "[rebuild_output]")
     Storage output_store;
     Job job(mapfn, intermediate_store, shuffler, reducefn, output_store);
     job.start(); //запуск
+    REQUIRE(intermediate_store.checkPair("And") == 2); //что сделал маппер
+    REQUIRE(intermediate_store.checkPair("As") == 1);
+    REQUIRE(intermediate_store.checkPair("and") == 5);
+    REQUIRE(intermediate_store.checkPair("be") == 2);
+    REQUIRE(intermediate_store.checkPair("constantly") == 2);
+    REQUIRE(intermediate_store.checkPair("full") == 3);
+    REQUIRE(intermediate_store.checkPair("in") == 3);
+    REQUIRE(intermediate_store.checkPair("like") == 2);
+    REQUIRE(intermediate_store.checkPair("skies") == 1);
+    REQUIRE(intermediate_store.checkPair("stare") == 3);
+    REQUIRE(intermediate_store.checkPair("time") == 1);
+    REQUIRE(intermediate_store.checkPair("Safarli") == 1);
+    REQUIRE(intermediate_store.checkPair("way") == 1);
+    REQUIRE(intermediate_store.checkPair("and") == 5);
+    REQUIRE(intermediate_store.checkPair("be") == 2);
+    REQUIRE(intermediate_store.checkPair("maintained") == 1);
+    REQUIRE(intermediate_store.checkPair("full") == 3);
+    REQUIRE(intermediate_store.checkPair("their") == 1);
+    REQUIRE(intermediate_store.checkPair("your") == 1);
+    REQUIRE(intermediate_store.checkPair("idempotential") == 0);
+
+    //intermediate_store.print();
+    REQUIRE(intermediate_store.get_amount() == 120);
 }
 
 
