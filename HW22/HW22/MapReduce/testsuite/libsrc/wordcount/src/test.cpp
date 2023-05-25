@@ -16,8 +16,6 @@
 #include <numeric>
 #include <filesystem>
 
-
-
 TEST_CASE("MapReduce", "[rebuild_output]")
 {
     namespace fs = std::filesystem;
@@ -58,46 +56,40 @@ TEST_CASE("MapReduce", "[rebuild_output]")
 }
 
 
-TEST_CASE("MapReduce", "[check_out_0.txt]")
+TEST_CASE("MapReduce", "[check_final_counts]")
 {
-    std::ifstream f("../../data/output/out_0.txt");
+    //std::ifstream f("../../data/output/out_0.txt");
     std::string line;
  
-    while (std::getline(f, line))
-    {
-        std::istringstream ss(line);
- 
-        std::string key;
-        std::getline(ss, key, '\t');
-        std::string value;
-        std::getline(ss, value, '\t');
-        if(key.compare("file1") == 0)
-            REQUIRE(std::stoi(value) == 3 );
-        else if(key.compare("file3") == 0)
-            REQUIRE(std::stoi(value) == 2);
-        else if(key.compare("hello") == 0)
-            REQUIRE(std::stoi(value) == 4);
-    }
-    f.close();
-}
+    namespace fs = std::filesystem;
 
-TEST_CASE("MapReduce", "[check_out_1.txt]")
-{
-    std::ifstream f("../../data/output/out_1.txt");
-    std::string line;
- 
-    while (std::getline(f, line))
+    std::string path = "../../data/output/";
+    for (const auto & entry : fs::directory_iterator(path))
     {
-        std::istringstream ss(line);
- 
-        std::string key;
-        std::getline(ss, key, '\t');
-        std::string value;
-        std::getline(ss, value, '\t');
-        if(key.compare("file2") == 0)
-            REQUIRE(std::stoi(value) == 1);
-        else if(key.compare("from") == 0)
-            REQUIRE(std::stoi(value) == 4);
+        std::ifstream f(entry.path());
+        std::cout << entry.path() << std::endl;
+        while (std::getline(f, line))
+        {
+            std::istringstream ss(line);
+     
+            std::string key;
+            std::getline(ss, key, '\t');
+            std::string value;
+            std::getline(ss, value, '\t');
+            if(!key.compare("And")) REQUIRE(std::stoi(value) == 2 );
+            else if(!key.compare("As")) REQUIRE(std::stoi(value) == 1 );
+            else if(!key.compare("and")) REQUIRE(std::stoi(value) == 5 );
+            else if(!key.compare("No")) REQUIRE(std::stoi(value) == 5 );
+            else if(!key.compare("be")) REQUIRE(std::stoi(value) == 2 );
+            else if(!key.compare("her")) REQUIRE(std::stoi(value) == 3 );
+            else if(!key.compare("can")) REQUIRE(std::stoi(value) == 2);
+            else if(!key.compare("like")) REQUIRE(std::stoi(value) == 2);
+            else if(!key.compare("maintained")) REQUIRE(std::stoi(value) == 1);
+            else if(!key.compare("you")) REQUIRE(std::stoi(value) == 1);
+            else if(!key.compare("your")) REQUIRE(std::stoi(value) == 1);
+            else if(!key.compare("full")) REQUIRE(std::stoi(value) == 3);
+            REQUIRE(key.compare("file") != 0);
+         }
+         f.close();
     }
-    f.close();
 }
