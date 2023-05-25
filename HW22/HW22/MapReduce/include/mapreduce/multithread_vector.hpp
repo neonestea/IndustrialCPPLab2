@@ -11,7 +11,9 @@ public:
     ~LockVector() {}
 
 
-    void push_back(T& in) {
+
+    void push_back(const T& in) {
+
         std::lock_guard<std::mutex> lock(mut);
         vec.push_back(std::move(in));
         cond.notify_one();

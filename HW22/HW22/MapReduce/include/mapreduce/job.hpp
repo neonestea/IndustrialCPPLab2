@@ -19,37 +19,6 @@
 #include "splitter.hpp"
 
 
-/*class Synchronization {
-public:
-    Synchronization(const std::size_t num_threads) : 
-      _num_threads(num_threads) {
-    }
-
-    void synch() {
-        std::unique_lock lock(m);
-        ++thread_cnt;
-        if (thread_cnt >= _num_threads) {
-            cv.notify_all();
-        } else {
-            while (thread_cnt < _num_threads) {
-                cv.wait(lock);
-            }
-        }
-        ++thread_out;
-        if (thread_out == _num_threads) {
-            thread_cnt = 0;
-            thread_out = 0;
-        }
-    }
-
-private:
-    std::atomic_int thread_out{0};
-    std::atomic_int thread_cnt{0};
-    const size_t _num_threads = 0;
-    std::mutex m;
-    std::condition_variable cv;
-};*/
-
 void run_map_phase(/*std::string& str, Synchronization& synchron, */Map& map_fn, Storage& istore, int id, LockVector<std::string>& files, int batch_size, int total)
 {
     map_fn.map(/*str,*/ istore, id, files, batch_size, total);
@@ -87,15 +56,26 @@ public:
         unsigned int n = std::thread::hardware_concurrency();
         
 
-        //Synchronization synchronizatorMap(map_workers); //не нуже
-        vector<string> inputFiles;
-        string outputDir = "../../data/input/";
-        double splitPercent = 0.1;
+
+        std::vector<std::string> inputFiles;
+        for (int i = 0; i < 5; ++i)
+            inputFiles.push_back(OUTPUT_DIR + "/" +"file" + to_string(i) + ".txt");
+        /*inputFiles.push_back("../../data/input/file1.txt");
+        inputFiles.push_back("../../data/input/file2.txt");
+        inputFiles.push_back("../../data/input/file3.txt");
+        inputFiles.push_back("../../data/input/file4.txt");
+        inputFiles.push_back("../../data/input/file5.txt");*/
+        std::string outputDir = "../../data/input/";
+        double splitPercent = 0.2;
         LockVector<string> outputFiles;
         splitFiles(inputFiles, outputDir, splitPercent, outputFiles);
         
+        for (int i=0; i<outputFiles.size(); ++i){
+            std::cout<<outputFiles[i]<<std::endl;
+        }
 
-        int batch_size = files.size();
+        int batch_size = outputFiles.size();
+
         if (batch_size > n) {
             batch_size = n;
         }
@@ -107,7 +87,9 @@ public:
         for (int i = 0; i < map_workers; ++i) {
 
             int thread_id = i;
-            std::thread map_thread(run_map_phase, /*std::ref(files[i]), std::ref(synchronizatorMap),*/ std::ref(map_fn), std::ref(istore),  thread_id, std::ref(files), batch_size, files.size());
+
+            std::thread map_thread(run_map_phase, /*std::ref(files[i]), std::ref(synchronizatorMap),*/ std::ref(map_fn), std::ref(istore),  thread_id, std::ref(outputFiles), batch_size, outputFiles.size());
+
             map_threads.emplace_back(std::move(map_thread));
         }
 

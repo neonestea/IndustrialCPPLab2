@@ -14,7 +14,7 @@
 
 int main (int argc, char* argv[])
 {
-    std::string source_dir = "../../projects/src/dummyfiles";
+    std::string source_dir = "../../data/input/";
     Map mapfn;
     Shuffler shuffler;
     Storage intermediate_store;
