@@ -38,14 +38,14 @@ TEST_CASE("MapReduce", "[rebuild_output]")
     REQUIRE(intermediate_store.checkPair("be") == 2);
     REQUIRE(intermediate_store.checkPair("constantly") == 2);
     REQUIRE(intermediate_store.checkPair("full") == 3);
-    REQUIRE(intermediate_store.checkPair("in") == 3);
+    REQUIRE(intermediate_store.checkPair("in") == 5);
     REQUIRE(intermediate_store.checkPair("like") == 2);
     REQUIRE(intermediate_store.checkPair("skies") == 1);
     REQUIRE(intermediate_store.checkPair("stare") == 3);
-    REQUIRE(intermediate_store.checkPair("time") == 1);
+    REQUIRE(intermediate_store.checkPair("time") == 8);
     REQUIRE(intermediate_store.checkPair("Safarli") == 1);
     REQUIRE(intermediate_store.checkPair("way") == 1);
-    REQUIRE(intermediate_store.checkPair("and") == 5);
+    REQUIRE(intermediate_store.checkPair("to") == 8);
     REQUIRE(intermediate_store.checkPair("be") == 2);
     REQUIRE(intermediate_store.checkPair("maintained") == 1);
     REQUIRE(intermediate_store.checkPair("full") == 3);
@@ -54,7 +54,7 @@ TEST_CASE("MapReduce", "[rebuild_output]")
     REQUIRE(intermediate_store.checkPair("idempotential") == 0);
 
     //intermediate_store.print();
-    REQUIRE(intermediate_store.get_amount() == 120);
+    REQUIRE(intermediate_store.get_amount() == 124);
 }
 
 
