@@ -22,6 +22,7 @@ TEST_CASE("MapReduce", "[rebuild_output]")
     fs::path tmp = "../../data/output/";
     std::uintmax_t n = fs::remove_all(tmp);
 
+    srand(42);
     std::string source_dir = "../../data/input";
     Map mapfn;
     Shuffler shuffler;
