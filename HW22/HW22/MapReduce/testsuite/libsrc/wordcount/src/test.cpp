@@ -31,9 +31,9 @@ TEST_CASE("MapReduce", "[rebuild_output]")
     Storage output_store;
     Job job(mapfn, intermediate_store, shuffler, reducefn, output_store);
     job.start(); //запуск
-    REQUIRE(intermediate_store.checkPair("And") == 2); //что сделал маппер
-    REQUIRE(intermediate_store.checkPair("As") == 1);
-    REQUIRE(intermediate_store.checkPair("and") == 5);
+    REQUIRE(intermediate_store.checkPair("And") == 0); //что сделал маппер
+    REQUIRE(intermediate_store.checkPair("As") == 0);
+    REQUIRE(intermediate_store.checkPair("and") == 7);
     REQUIRE(intermediate_store.checkPair("be") == 2);
     REQUIRE(intermediate_store.checkPair("constantly") == 2);
     REQUIRE(intermediate_store.checkPair("full") == 3);
@@ -42,7 +42,7 @@ TEST_CASE("MapReduce", "[rebuild_output]")
     REQUIRE(intermediate_store.checkPair("skies") == 1);
     REQUIRE(intermediate_store.checkPair("stare") == 3);
     REQUIRE(intermediate_store.checkPair("time") == 8);
-    REQUIRE(intermediate_store.checkPair("Safarli") == 1);
+    REQUIRE(intermediate_store.checkPair("safarli") == 1);
     REQUIRE(intermediate_store.checkPair("way") == 1);
     REQUIRE(intermediate_store.checkPair("to") == 8);
     REQUIRE(intermediate_store.checkPair("be") == 2);
@@ -53,7 +53,7 @@ TEST_CASE("MapReduce", "[rebuild_output]")
     REQUIRE(intermediate_store.checkPair("idempotential") == 0);
 
     //intermediate_store.print();
-    REQUIRE(intermediate_store.get_amount() == 124);
+    REQUIRE(intermediate_store.get_amount() == 115);
 }
 
 
@@ -77,10 +77,9 @@ TEST_CASE("MapReduce", "[check_final_counts]")
             std::getline(ss, key, '\t');
             std::string value;
             std::getline(ss, value, '\t');
-            if(!key.compare("And")) REQUIRE(std::stoi(value) == 2 );
-            else if(!key.compare("As")) REQUIRE(std::stoi(value) == 1 );
-            else if(!key.compare("and")) REQUIRE(std::stoi(value) == 5 );
-            else if(!key.compare("No")) REQUIRE(std::stoi(value) == 5 );
+            if(!key.compare("and")) REQUIRE(std::stoi(value) == 7 );
+            else if(!key.compare("as")) REQUIRE(std::stoi(value) == 3 );
+            else if(!key.compare("no")) REQUIRE(std::stoi(value) == 7 );
             else if(!key.compare("be")) REQUIRE(std::stoi(value) == 2 );
             else if(!key.compare("her")) REQUIRE(std::stoi(value) == 3 );
             else if(!key.compare("can")) REQUIRE(std::stoi(value) == 2);
