@@ -16,6 +16,7 @@ int main (int argc, char* argv[])
 {
     std::string source_dir = "../../data/input/";
     Map mapfn;
+    srand(42) // Ставим датчик случайных чисел, чтобы шаффлилось всегда одинаково
     Shuffler shuffler;
     Storage intermediate_store;
     Reduce reducefn;
