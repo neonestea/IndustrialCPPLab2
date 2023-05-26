@@ -18,6 +18,28 @@
 #include "multithread_vector.hpp"
 #include "splitter.hpp"
 
+std::vector<std::vector<char>> SplitVector(const std::vector<char>& vec, size_t n)
+{
+    std::vector<std::vector<char>> outVec;
+
+    size_t length = vec.size() / n;
+    size_t remain = vec.size() % n;
+
+    size_t begin = 0;
+    size_t end = 0;
+
+    for (size_t i = 0; i < std::min(n, vec.size()); ++i)
+    {
+        end += (remain > 0) ? (length + !!(remain--)) : length;
+
+        outVec.push_back(std::vector<char>(vec.begin() + begin, vec.begin() + end));
+
+        begin = end;
+    }
+
+    return outVec;
+}
+
 
 void run_map_phase(/*std::string& str, Synchronization& synchron, */Map& map_fn, Storage& istore, int id, LockVector<std::string>& files, int batch_size, int total)
 {
@@ -25,9 +47,10 @@ void run_map_phase(/*std::string& str, Synchronization& synchron, */Map& map_fn,
     //synchron.synch();
 }
 
-void run_shuffler_phase(/*Synchronization& synchron,*/ Storage& istore, LockVector<Storage>& shuffled, int reducers_count, Shuffler& shuffler, int id)
+void run_shuffler_phase(/*Synchronization& synchron,*/ Storage& istore, LockVector<Storage>& shuffled, int reducers_count, Shuffler& shuffler, int id, std::vector<char>& chars)
 {
-    shuffler.shuffle(istore, shuffled, reducers_count, id);
+    
+    shuffler.shuffle(istore, shuffled, reducers_count, id, chars);
     //synchron.synch();
 }
 
@@ -103,6 +126,22 @@ public:
         if (reducers_count > n) {
             reducers_count = n;
         }
+
+        std::vector<char> charVector = {'A', 'a', 'B', 'b', 'C', 'c', 'D', 'd', 'E', 'e', 'F', 'f', 'G', 'g', 'H', 'h', 'I', 'i', 'J', 'j', 'K', 'k', 'L', 'l', 'M','m', 'N', 'n', 'O', 'o', 'P', 'p',
+         'Q', 'q', 'R', 'r', 'S','s', 'T', 't', 'U', 'u', 'V', 'v', 'W','w', 'X', 'X', 'Y', 'y', 'Z', 'z'};
+        std::vector<std::vector<char>> charVectors = SplitVector(charVector, reducers_count);
+
+        for (auto vec : charVectors){
+            std::cout << "New vector";
+            std::cout << '\n';
+            for (auto letter : vec){
+                std::cout << letter << ' ';
+            }
+            std::cout << '\n';
+        }
+        
+        
+        
         //Synchronization synchronizatorShuffler(reducers_count); // Не нужен
         LockVector<Storage> shuffled;
         std::vector<std::thread> shuffle_threads = {};
@@ -110,7 +149,7 @@ public:
 //        std::cout << "Shuffling " << reducers_count << " threads" << std::endl;
         for (size_t i = 0; i < reducers_count; ++i) {
             int thread_id = i;
-            std::thread shuffle_thread(run_shuffler_phase, /*std::ref(synchronizatorShuffler), */std::ref(istore), std::ref(shuffled), std::ref(reducers_count), std::ref(shuffler), thread_id);
+            std::thread shuffle_thread(run_shuffler_phase, /*std::ref(synchronizatorShuffler), */std::ref(istore), std::ref(shuffled), std::ref(reducers_count), std::ref(shuffler), thread_id, std::ref(charVectors[i]));
             shuffle_threads.emplace_back(std::move(shuffle_thread));
         }
         for (size_t i = 0; i < reducers_count; ++i) {
