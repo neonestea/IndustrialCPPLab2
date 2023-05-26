@@ -123,12 +123,10 @@ public:
 //        istore.print();
         size_t reducers_count = istore.get_amount();
        // unsigned int n = std::thread::hardware_concurrency();
-        if (reducers_count < 2) { //
-            reducers_count = 1; //
+        if (reducers_count > n) { //
+            reducers_count = n; //
         }
 
-        else{reducers_count = 2;
-        }
 
 
         std::vector<char> charVector = {'A', 'a', 'B', 'b', 'C', 'c', 'D', 'd', 'E', 'e', 'F', 'f', 'G', 'g', 'H', 'h', 'I', 'i', 'J', 'j', 'K', 'k', 'L', 'l', 'M','m', 'N', 'n', 'O', 'o', 'P', 'p',
