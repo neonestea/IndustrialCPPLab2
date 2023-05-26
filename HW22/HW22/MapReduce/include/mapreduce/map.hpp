@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <cctype>
 #include <boost/range/istream_range.hpp>
 #include "storage.hpp"
 #include "multithread_vector.hpp"
@@ -27,11 +28,9 @@ public:
             while (std::getline(f, line)) {
                 //std::cout << "line " << line << std::endl;
                 std::vector<std::string> words = split(line, ' ');
-                for (const auto& word : words)
+                for (auto& word : words)
                 {
-                    //std::cout << "word " << word << std::endl;
-                    //if (word.size() > 100)
-                    //    continue;
+                    word[0] = tolower(word[0]);
                     store.pushback(word, 1);
                 }
                 
