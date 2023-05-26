@@ -94,6 +94,19 @@ public:
         
     }
 
+
+    int checkPair(const std::string& key) {
+
+        if (store.find(key) == store.end()) {
+            return 0;
+        } else {
+            auto result = store.at(key);
+            int i = result.size();
+            return i;
+        }
+        
+    }
+
 private:
     std::map<std::string, std::vector<int>> store;
     std::mutex* mut;
