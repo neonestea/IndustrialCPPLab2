@@ -99,9 +99,8 @@ public:
 
         int batch_size = outputFiles.size();
 
-        if (batch_size > n) {
-            batch_size = n;
-        }
+         if (reducers_count < 2) { //
+            reducers_count = 1; //
         int map_workers = batch_size;
 
         std::vector<std::thread> map_threads = {};
